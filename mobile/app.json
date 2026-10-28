@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "MIDI Controller",
+    "slug": "midi-controller",
+    "version": "1.0.0",
+    "orientation": "landscape",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#121212"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jarvisprojects.midicontroller"
+    },
+    "android": {
+      "package": "com.jarvisprojects.midicontroller",
+      "screenOrientation": "landscape",
+      "statusBar": {
+        "backgroundColor": "#121212"
+      },
+      "navigationBar": {
+        "backgroundColor": "#121212"
+      },
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundColor": "#121212"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "orientation": "landscape"
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true,
+            "buildArchs": ["arm64-v8a", "armeabi-v7a"],
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          }
+        }
+      ]
+    ]
+  }
+}

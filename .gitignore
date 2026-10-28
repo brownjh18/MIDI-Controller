@@ -1,0 +1,42 @@
+# --- Node / Expo ---------------------------------------------------------
+node_modules/
+.expo/
+.expo-shared/
+web-build/
+dist/
+*.tsbuildinfo
+
+# --- Android build output (generated) ------------------------------------
+mobile/android/build/
+mobile/android/app/build/
+mobile/android/app/.cxx/
+mobile/android/.cxx/
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/android/.idea/
+*.apk
+*.aab
+*.jks
+*.keystore
+!mobile/android/app/debug.keystore
+
+# --- Python --------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# --- PyInstaller / installer build output --------------------------------
+installer/build/
+installer/dist/
+installer/payload/
+
+# --- IDE / OS ------------------------------------------------------------
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Local noise ---------------------------------------------------------
+*.log

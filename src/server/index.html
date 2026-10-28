@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIDI Bridge</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; line-height: 1.6; }
+  h1 { color: #2563eb; }
+  .card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0; background: #f9fafb; }
+  code { background: #eef2ff; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+  .status { color: #16a34a; font-weight: bold; }
+  .endpoint { margin-top: 10px; }
+  .btn { display: inline-block; background: #2563eb; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; margin-top: 10px; }
+  .btn:hover { background: #1d4ed8; }
+  .log { font-family: monospace; font-size: 12px; background: #1f2937; color: #e5e7eb; padding: 10px; border-radius: 6px; height: 200px; overflow: auto; white-space: pre-wrap; margin-top: 20px; }
+</style>
+</head>
+<body>
+  <h1>MIDI Bridge</h1>
+  <p class="status">Server is running</p>
+  <div class="card">
+    <p><strong>HTTP:</strong> <code>http://localhost:8081/</code></p>
+    <p class="endpoint"><strong>WebSocket:</strong> <code>ws://localhost:8765</code></p>
+    <p>Connect a WebSocket client (e.g. the mobile app) to <code>ws://localhost:8765</code> to send MIDI control messages.</p>
+    <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSocket" class="btn" target="_blank">WebSocket Docs</a>
+  </div>
+  <div id="log" class="log">Waiting for WebSocket activity...</div>
+  <script>
+    const log = document.getElementById('log');
+    const ws = new WebSocket('ws://localhost:8765');
+    ws.onopen = () => log.textContent = 'WebSocket connected to ws://localhost:8765';
+    ws.onmessage = (e) => log.textContent += '\n<< ' + e.data;
+    ws.onclose = () => log.textContent += '\nWebSocket disconnected';
+    ws.onerror = (e) => log.textContent += '\nWebSocket error';
+  </script>
+</body>
+</html>
