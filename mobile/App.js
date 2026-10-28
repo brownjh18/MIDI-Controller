@@ -11,6 +11,7 @@ import {
   ScrollView,
   useWindowDimensions,
   AppState,
+  Linking,
 } from 'react-native';
 import * as Battery from 'expo-battery';
 import * as Network from 'expo-network';
@@ -29,6 +30,12 @@ const PAGE_HOST =
     ? window.location.hostname || ''
     : '';
 const DEFAULT_SERVER_HOST = PAGE_HOST || MDNS_HOST;
+/* Always points at the newest published build, so the link in Settings keeps
+   working after later releases. */
+const RELEASES_URL =
+  'https://github.com/brownjh18/MIDI-Controller/releases/latest';
+/* Shown in the update row; follows the version in app.json automatically. */
+const APP_VERSION = require('./app.json').expo.version;
 /* How long a single LAN probe may take before that address is written off. */
 const PROBE_TIMEOUT = 1200;
 
@@ -1407,6 +1414,14 @@ export default function App() {
     setLatency(null);
   }, []);
 
+  /* Opens the GitHub release page in the phone's browser so a newer APK can be
+     downloaded without hunting for the repository. */
+  const openReleases = useCallback(() => {
+    Linking.openURL(RELEASES_URL).catch((error) => {
+      console.log('Failed to open the release page:', error);
+    });
+  }, []);
+
   const selectMidiOutput = useCallback((name) => {
     const socket = ws.current;
     if (socket?.readyState === WebSocket.OPEN) {
@@ -1861,6 +1876,24 @@ export default function App() {
                         : 'Outputs appear here once the bridge is connected.'}
                     </Text>
                   )}
+
+                  <Text style={styles.settingsLabel}>ABOUT</Text>
+                  <TouchableOpacity
+                    style={styles.updateRow}
+                    onPress={openReleases}
+                    accessibilityRole="link"
+                    accessibilityLabel="Download the latest version from GitHub"
+                  >
+                    <View style={styles.updateTextWrap}>
+                      <Text style={styles.updateTitle}>
+                        Download latest version
+                      </Text>
+                      <Text style={styles.updateHint} numberOfLines={1}>
+                        github.com/brownjh18/MIDI-Controller
+                      </Text>
+                    </View>
+                    <Text style={styles.updateBadge}>v{APP_VERSION} ↗</Text>
+                  </TouchableOpacity>
                 </ScrollView>
 
                 <View style={styles.settingsActions}>
@@ -2648,6 +2681,36 @@ const styles = StyleSheet.create({
   },
   settingsScrollContent: {
     paddingRight: 2,
+  },
+  updateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: C.surfaceEdge,
+    backgroundColor: C.inset,
+  },
+  updateTextWrap: {
+    flex: 1,
+  },
+  updateTitle: {
+    color: C.textWhite,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  updateHint: {
+    color: C.textDim,
+    fontSize: 9,
+    marginTop: 2,
+  },
+  updateBadge: {
+    color: C.blue,
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   settingsHeader: {
     flexDirection: 'row',
