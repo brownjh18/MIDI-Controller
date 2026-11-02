@@ -796,11 +796,21 @@ export default function App() {
     if (typeof message.tempo === 'number' && message.tempo > 0) {
       setBpm(Math.round(message.tempo * 10) / 10);
     }
-    // Never fight a fader/knob move happening right now in the app.
-    if (Date.now() - lastLocalMixerEditRef.current < 1500) return;
     const tracks = message.tracks
       .filter((t) => t && typeof t === 'object')
       .slice(0, MIXER_CHANNELS.length);
+    // Keep the controller focused on the track selected inside Live. This is
+    // intentionally applied before the local fader-move guard: selecting a
+    // track must still work while a separate fader is being touched.
+    if (
+      Number.isInteger(message.selected) &&
+      message.selected >= 0 &&
+      message.selected < tracks.length
+    ) {
+      setSelectedVoice(message.selected);
+    }
+    // Never fight a fader/knob move happening right now in the app.
+    if (Date.now() - lastLocalMixerEditRef.current < 1500) return;
     const toByte = (v, lo, hi) => {
       if (v === null || v === undefined) return null;
       const n = Number(v);
@@ -1311,6 +1321,17 @@ export default function App() {
     }
   }, [sendMessage]);
 
+  const selectMixerTrack = useCallback(
+    (index) => {
+      if (!Number.isInteger(index) || index < 0 || index >= trackCount) return;
+      setSelectedVoice(index);
+      // Mirror a strip tap into Live as well, so the app and Live stay on the
+      // same channel whether the selection starts in the app or on the PC.
+      sendMessage('select_track', 0, index, index);
+    },
+    [sendMessage, trackCount]
+  );
+
   const handleMixerVolume = useCallback(
     (index, val) => {
       lastLocalMixerEditRef.current = Date.now();
@@ -1492,7 +1513,7 @@ export default function App() {
                 db={mixerDbs[i] || null}
                 onVolume={(v) => handleMixerVolume(i, v)}
                 onPan={(v) => handleMixerPan(i, v)}
-                onSelect={() => setSelectedVoice(i)}
+                onSelect={() => selectMixerTrack(i)}
                 selected={activeVoice === i}
                 faderHeight={mixerMaximized ? mixerFullFader : mixerInlineFader}
                 knobSize={40}
