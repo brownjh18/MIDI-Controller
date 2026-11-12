@@ -1,143 +1,125 @@
-# MIDI Bridge
+﻿# MIDI Bridge
 
-## Run the browser controller
+MIDI Bridge connects the MIDI Controller app (Android/iOS) to supported DAWs on Windows through a local bridge.
 
-From the project root, start the Expo web app:
+## Finished DAWs (setup & connection)
 
-```powershell
-Set-Location mobile
-npx expo start --web --port 8082
-```
+- **Ableton Live** (Windows)
+- **Studio One** (Windows)
 
-Open the URL Expo prints (normally `http://localhost:8082`). Port 8081 may
-already be used by another local server; use a different free port if needed.
-The controller uses the page's host name to connect to the MIDI bridge by
-default. To connect from a phone or tablet, open the app's Settings and enter
-the computer's LAN IP address.
+For other DAWs, support may be in progress; use the DAW selector in the app only for DAWs that are configured and reporting state.
 
-## Run the MIDI bridge
+## 1) Install the Windows bridge (recommended)
 
-In a second PowerShell window, from the project root:
+Use the single all-in-one installer: **`MidiBridgeSetup.exe`**
 
+1. Download `MidiBridgeSetup.exe` from the [GitHub release](https://github.com/brownjh18/MIDI-Controller/releases).
+2. Run it on the Windows PC that runs your DAW. It requests **administrator** permission (UAC) so it can install/configure required components.
+3. The installer sets up the bridge and supported DAW integrations/components (including virtual MIDI/driver components such as **loopMIDI** when needed, firewall access for the app connection, DAW scripts/devices/surface data for supported DAWs, and starts/configures the bridge as applicable).
+4. When installation completes, keep the bridge running (it listens for the app on **TCP port 8765**).
+
+> If Windows Firewall or security software blocks the connection, allow **MidiBridge** / inbound **TCP 8765** on the networks you use (the installer attempts to configure this).
+
+## 2) Install the mobile app
+
+- **Android:** install the release `.apk` (e.g. `MIDIController-v1.2.0.apk`).
+- **iOS:** install the release `.ipa` (e.g. `MidiController-v1.2.0.ipa`) using your preferred sideload/install method.
+
+## 3) Connect the app to the bridge
+
+1. Ensure the **bridge is running** on the PC.
+2. Connect the phone and PC so they can reach each other:
+   - **Same Wi-Fi/LAN (recommended):** phone and PC on the same network. The app can auto-discover the bridge (port 8765).
+   - **USB / Personal Hotspot tether:** supported by the app/bridge for direct connection where Wi-Fi is unavailable/restricted.
+3. Open the app → **Settings**:
+   - Confirm the app is connected to the bridge (status/latency/MIDI info updates when connected).
+   - If auto-discovery does not find the bridge, enter the PC’s IP address (server address) and connect manually.
+4. In the app, select the target **DAW** (**Ableton Live** or **Studio One**) so the bridge/app exchange the correct DAW state and controls.
+
+---
+
+## Ableton Live — setup and connection (finished)
+
+### Install/configure (Windows)
+1. Run **`MidiBridgeSetup.exe`** on the PC (recommended). It installs the bridge and the Ableton integration components (including the **`AbletonBridgeMixer`** control surface script).
+2. Ensure the virtual MIDI port used by the integration is available and running (commonly **`AbletonBridge`** via **loopMIDI**). The installer can set up/install required MIDI components.
+3. Start or **restart Ableton Live** after installation if Live was open (Live scans control surfaces at startup).
+
+### Ableton Live settings
+1. Open **Options/Preferences → Link, Tempo & MIDI**.
+2. In **Control Surface**, select **`AbletonBridgeMixer`**.
+3. Set **Input** and **Output** to the bridge MIDI port (commonly **`AbletonBridge`**).
+4. Enable the appropriate MIDI port options (typically **Track** and/or **Remote**, depending on your setup).
+
+### Connect and verify in the app
+1. Start the bridge and open Ableton Live with the control surface configured.
+2. In the app, connect to the bridge and select **Ableton Live**.
+3. The app should sync Ableton’s mixer/transport/state (tracks, volumes/pans, devices/parameters where available).  
+   - If the app shows **“waiting for Ableton Live”**, verify: bridge is running, app is connected to the correct PC, **AbletonBridgeMixer** is selected as Control Surface with correct **Input/Output**, and restart Ableton Live if needed.
+
+---
+
+## Studio One — setup and connection (finished)
+
+### Install/configure (Windows)
+1. Run **`MidiBridgeSetup.exe`** on the PC (recommended). It installs the bridge and the Studio One integration (e.g. **Jarvis Bridge** device/component and required surface/control-link data).
+2. Ensure the virtual MIDI port used by the integration exists and is running (commonly **`loopMIDI Port`**).
+3. Start or **restart Studio One** after installation so it loads the installed device/surface data.
+
+### Studio One settings
+1. Open **Studio One → Options/Preferences → External Devices** (or MIDI device/surface configuration).
+2. Add/select the installed **Jarvis Bridge** / Mackie Control device for this integration.
+3. Set **Receive From** and **Send To** to the **same loopMIDI port** used by the bridge (commonly **`loopMIDI Port`**).
+4. Save/apply settings and restart Studio One if the device/surface does not load correctly.
+
+### Connect and verify in the app
+1. Start the bridge and open Studio One with the Jarvis Bridge device configured on the correct loopMIDI port.
+2. In the app, connect to the bridge and select **Studio One**.
+3. The app should sync Studio One mixer/state (track names, levels/pans, devices/inserts/sends and parameters as exposed).
+4. For detailed plugin/insert parameter control, create/enable the required **Control Link** mappings in Studio One for the target parameters, then focus/reselect the device in the app if needed.
+
+---
+
+## Troubleshooting
+- **App can’t connect:** ensure the bridge is running, phone/PC can reach each other, and inbound **TCP 8765** is allowed. Try entering the PC IP manually in app Settings.
+- **Connected but waiting for the DAW:** select the correct DAW in the app, ensure the DAW is open, and confirm the DAW-side control surface/device/script is configured on the correct MIDI port(s).
+- **Ableton:** verify `AbletonBridgeMixer` + correct Input/Output in *Link, Tempo & MIDI*; restart Ableton after install.
+- **Studio One:** verify Jarvis Bridge/Mackie Control **Receive/Send** use the same loopMIDI port; restart Studio One after changes.
+
+## Build/release artifacts
+- **Windows (all-in-one installer):** `MidiBridgeSetup.exe` (installs bridge and performs DAW/setup configuration with admin elevation)
+- **Android:** release `.apk`
+- **iOS:** release `.ipa`
+- Latest assets: https://github.com/brownjh18/MIDI-Controller/releases
+
+## Developer notes (from source)
+
+### Run the MIDI bridge
 ```powershell
 python -m pip install -r requirements.txt
 python src\main.py
 ```
 
-The bridge listens on WebSocket port 8765 and sends to the existing MIDI output
-named `AbletonBridge`. It will not report MIDI as ready unless it has opened a
-real output port. To use another port name, set it before starting the bridge:
-
-```powershell
-$env:MIDI_OUTPUT_PORT = "Your MIDI port name"
-python src\main.py
-```
-
-### Connect over a USB cable
-
-The controller works with an iPhone USB cable even when Wi-Fi is unavailable
-or unreliable:
-
-1. On the iPhone, enable **Personal Hotspot** and connect the cable to the PC.
-   Windows adds an **Apple Mobile Device Ethernet** adapter; the phone is
-   `172.20.10.1` and the PC is assigned an address in `172.20.10.2-14`.
-2. Keep the bridge running. It binds `0.0.0.0:8765`, so it is reachable over
-   the new adapter without a restart.
-3. The app probes the `172.20.10.2-14` range automatically (no address to
-   type) alongside its normal Wi-Fi discovery.
-
-The installer's firewall rule allows TCP 8765 on **all** Windows network
-profiles. If you installed an older build, reinstall it or run
-`netsh advfirewall firewall add rule name="MIDI Bridge (TCP 8765)" dir=in
-action=allow protocol=TCP localport=8765 profile=any` from an elevated prompt;
-otherwise a tether adapter classified as a Public network will be blocked even
-though the bridge is listening.
-
-### Connect Ableton Live on Windows
-
-1. Install and open loopMIDI. Add a virtual MIDI port named `AbletonBridge` and
-   leave loopMIDI running.
-2. Install the bridge requirements using a Python version supported by
-   `python-rtmidi`. If pip tries to build `python-rtmidi` from source, install
-   the Microsoft C++ Build Tools with the C++ desktop workload, then retry.
-3. Start the bridge and confirm its log says it connected to MIDI output
-   `AbletonBridge`. The controller's Settings panel should also report that
-   MIDI output as ready.
-4. In Ableton Live, open **Settings/Preferences > Link, Tempo & MIDI**. In the
-   **MIDI Ports** inputs, enable **Track** for `AbletonBridge`. Enable **Remote**
-   too if you want to map the controller's CC faders and knobs.
-5. Create a MIDI track with an instrument, choose `AbletonBridge` as **MIDI
-   From**, and choose the channel matching the selected controller voice
-   (CH 1 listens on channel 1, through CH 8 on channel 8). Set Monitor to **In**
-   or arm the track and play the controller.
-6. The bundled `AbletonBridgeMixer` remote script turns fader moves into real
-   Live parameters, so no manual MIDI mapping is needed: channels 1-8 send
-   volume (CC 7) and pan (CC 10) for tracks 1-8, and channel 9 sends the reverb
-   return (CC 91), the delay return (CC 94) and master volume (CC 7).
-
-For notes from the piano, either set the track input channel to the controller's
-selected MIDI channel or select **All Channels**. The controller's channel
-selector changes the channel used by the keyboard and pads.
-
-If the controller says the bridge is connected but MIDI is unavailable, inspect
-the bridge log for the MIDI backend error and the list of enumerated outputs.
-Without `python-rtmidi` and an existing workstation-facing port, the browser UI
-still works, but the bridge cannot send MIDI to Ableton.
-
-## Repository layout
-
-```
-src/                        MIDI bridge (Python) and the Ableton remote script
-  main.py                   bridge entry point (WebSocket 8765)
-  core/                     MIDI, state file, command file, mDNS, WinMM ports
-  ableton/AbletonBridgeMixer/   Live control-surface script (copy this into Live)
-  server/                   legacy browser UI served by the bridge
-mobile/                     Expo / React Native controller (App.js is the whole UI)
-installer/                  Windows setup app (tkinter) + PyInstaller build script
-SETUP-NEW-LAPTOP.md         one-page checklist for a fresh machine
-```
-
-## Build the Android app
-
-```powershell
-Set-Location mobile
-npx expo install --check
-npx expo lint
-npx expo prebuild --platform android                            # android/ is generated
-Set-Location android
-.\gradlew assembleRelease                                       # phone APK (~31 MB)
-.\gradlew assembleRelease -PreactNativeArchitectures=x86_64     # emulator APK
-```
-
-`mobile/android` is generated by prebuild and is not committed; the native
-settings it needs (ABIs, R8, cleartext traffic) live in `app.json`.
-Each prebuild creates a fresh debug signing key, so an APK built on a different
-machine will not upgrade in place over one built here — uninstall the old app
-first in that case.
-
-The APK lands in `mobile/android/app/build/outputs/apk/release/app-release.apk`.
-Release builds ship `arm64-v8a` + `armeabi-v7a` only and run R8, which keeps the
-file at ~31 MB instead of ~67 MB; both settings live in `app.json`
-(`expo-build-properties`) and are mirrored in `android/gradle.properties`.
-The app needs no setup: it sweeps the LAN for the bridge's mDNS name and
-reconnects on its own, falling back to the address typed in Settings.
-
-## Build the Windows setup
-
+### Build the Windows installer
 ```powershell
 Set-Location installer
 python -m pip install pyinstaller
-python selftest.py          # optional smoke test
 .\build.ps1
 ```
+`build.ps1` produces `installer\dist\MidiBridgeSetup.exe`. It requires `installer\payload\loopMIDISetup.zip`.
 
-`build.ps1` freezes the bridge with PyInstaller and embeds it, the remote script
-and the loopMIDI driver package into `installer/dist/MidiBridgeSetup.exe`.
-It needs `installer/payload/loopMIDISetup.zip` � download the loopMIDI setup
-bundle from <https://www.tobias-erichsen.de/software/loopmidi.html> and place the
-zip there first. That folder and the built binaries are not committed.
+### Build Android (local)
+```powershell
+Set-Location mobile
+npx expo prebuild --platform android
+Set-Location android
+.\gradlew assembleRelease
+```
+APK output: `mobile/android/app/build/outputs/apk/release/app-release.apk`.
 
-The resulting setup installs `MidiBridge.exe` to `C:\Program Files\MidiBridge`,
-copies the remote script into the user's Live library, installs the loopMIDI
-driver silently, opens the firewall and starts the bridge - after which Ableton
-Live only needs `AbletonBridgeMixer` picked as a control surface.
+### Build iOS (xtool)
+```bash
+cd /home/brown/MidiController
+xtool dev build -c release -s -i
+```
+IPA output: `xtool/MidiController.ipa`.
