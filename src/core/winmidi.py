@@ -131,18 +131,23 @@ def get_input_names() -> List[str]:
     return [name for _index, name in get_input_devices()]
 
 
-def get_output_names() -> List[str]:
-    """Lists the MIDI output devices Windows exposes through winmm."""
+def get_output_devices() -> List[Tuple[int, str]]:
+    """Lists the MIDI output devices Windows exposes as (index, name) pairs."""
     winmm = _load_winmm()
-    names: List[str] = []
+    devices: List[Tuple[int, str]] = []
     caps = MIDIOUTCAPS()
     for index in range(int(winmm.midiOutGetNumDevs())):
         if (
             winmm.midiOutGetDevCapsW(index, ctypes.byref(caps), ctypes.sizeof(caps))
             == MMSYSERR_NOERROR
         ):
-            names.append(caps.szPname)
-    return names
+            devices.append((index, caps.szPname))
+    return devices
+
+
+def get_output_names() -> List[str]:
+    """Lists the MIDI output devices Windows exposes through winmm."""
+    return [name for _index, name in get_output_devices()]
 
 
 class WinMmOutput:
@@ -158,13 +163,13 @@ class WinMmOutput:
         if result != MMSYSERR_NOERROR:
             raise OSError(f"midiOutOpen failed for '{name}' (error {result})")
 
-    def send(self, message: Any) -> None:
+    def send(self, message: Any) -> bool:
         """Sends a short message; accepts anything exposing .bytes() (mido)."""
         if not self._handle:
-            return
+            return False
         data = message.bytes()
         if not data or len(data) > 3:
-            return
+            return True
         packed = 0
         for position, byte in enumerate(data):
             packed |= byte << (8 * position)
@@ -176,6 +181,26 @@ class WinMmOutput:
                 result,
                 list(data),
             )
+            return False
+        return True
+
+    def send_short(self, status: int, data1: int, data2: int) -> bool:
+        """Sends a three-byte short message without needing a mido object."""
+        if not self._handle:
+            return False
+        packed = (status & 0xFF) | ((data1 & 0x7F) << 8) | ((data2 & 0x7F) << 16)
+        result = self._winmm.midiOutShortMsg(self._handle, packed)
+        if result != MMSYSERR_NOERROR:
+            logger.warning(
+                "midiOutShortMsg failed for '%s' (error %s): %02X %02X %02X",
+                self.name,
+                result,
+                status,
+                data1,
+                data2,
+            )
+            return False
+        return True
 
     def close(self) -> None:
         """Closes the winmm device handle."""

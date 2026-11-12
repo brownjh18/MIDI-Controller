@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ControlSurface>
+
+	<Files>
+		<File url="JarvisBridgeControls.surface.xml"/>
+		<File url="JarvisBridgeMappings.surface.xml"/>
+	</Files>
+
+</ControlSurface>

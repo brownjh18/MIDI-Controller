@@ -33,6 +33,26 @@ $env:MIDI_OUTPUT_PORT = "Your MIDI port name"
 python src\main.py
 ```
 
+### Connect over a USB cable
+
+The controller works with an iPhone USB cable even when Wi-Fi is unavailable
+or unreliable:
+
+1. On the iPhone, enable **Personal Hotspot** and connect the cable to the PC.
+   Windows adds an **Apple Mobile Device Ethernet** adapter; the phone is
+   `172.20.10.1` and the PC is assigned an address in `172.20.10.2-14`.
+2. Keep the bridge running. It binds `0.0.0.0:8765`, so it is reachable over
+   the new adapter without a restart.
+3. The app probes the `172.20.10.2-14` range automatically (no address to
+   type) alongside its normal Wi-Fi discovery.
+
+The installer's firewall rule allows TCP 8765 on **all** Windows network
+profiles. If you installed an older build, reinstall it or run
+`netsh advfirewall firewall add rule name="MIDI Bridge (TCP 8765)" dir=in
+action=allow protocol=TCP localport=8765 profile=any` from an elevated prompt;
+otherwise a tether adapter classified as a Public network will be blocked even
+though the bridge is listening.
+
 ### Connect Ableton Live on Windows
 
 1. Install and open loopMIDI. Add a virtual MIDI port named `AbletonBridge` and

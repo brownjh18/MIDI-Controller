@@ -13,8 +13,16 @@ MIXER_PORT_SUFFIX = " Mixer"
 class MidiInterface:
     """Send MIDI messages to an existing workstation-facing MIDI port."""
 
-    def __init__(self, port_name: Optional[str] = None):
+    def __init__(
+        self,
+        port_name: Optional[str] = None,
+        allow_virtual_hosting: bool = True,
+    ):
         self.port_name = (port_name or os.environ.get("MIDI_OUTPUT_PORT") or DEFAULT_PORT_NAME).strip()
+        # Windows refuses to open some existing MIDI inputs (notably loopMIDI)
+        # from a process that also hosts teVirtualMIDI ports. Studio One needs
+        # the loopMIDI input for its surface echo, so it turns hosting off.
+        self.allow_virtual_hosting = allow_virtual_hosting
         # Every message is mirrored to all open ports. Normally that is a single
         # device; when the bridge hosts its own virtual ports it holds both the
         # main port (notes for Ableton tracks) and the mixer port (CC consumed
@@ -134,9 +142,28 @@ class MidiInterface:
         if matching_port and matching_port.strip().casefold().endswith(
             MIXER_PORT_SUFFIX.casefold()
         ):
+            if not self.allow_virtual_hosting:
+                self.availability_error = (
+                    f"MIDI output '{self.port_name}' requires hosting virtual ports, "
+                    "which is disabled for this DAW."
+                )
+                logger.error("%s", self.availability_error)
+                self._output_ports = []
+                return False
             return self._host_virtual_ports(winmidi)
 
         if matching_port is None:
+            if not self.allow_virtual_hosting:
+                # Hosting teVirtualMIDI ports in this process would make the
+                # Studio One surface input impossible to open, so report the
+                # missing port instead of silently breaking the mirror.
+                self.availability_error = (
+                    f"MIDI output '{self.port_name}' was not found. Available outputs: "
+                    f"{', '.join(names) or '(none)'}"
+                )
+                logger.error("%s", self.availability_error)
+                self._output_ports = []
+                return False
             # Nothing on the machine matches the configured port, so host it as
             # a virtual port that a DAW (Ableton, FL, ...) can listen to.
             return self._host_virtual_ports(winmidi)
@@ -219,9 +246,56 @@ class MidiInterface:
         self._output_ports = []
 
     def _broadcast(self, message: Any) -> None:
-        """Sends one MIDI message to every open port."""
-        for port in self._output_ports:
-            port.send(message)
+        """Sends one MIDI message to every open port, healing stale handles.
+
+        Creating or destroying a teVirtualMIDI port changes the Windows device
+        list, which silently invalidates winmm handles opened earlier in the
+        same process (every send then fails with MMSYSERR_NODRIVER). Reopening
+        by name keeps a DAW switch from killing the bridge's MIDI output.
+        """
+        for port in list(self._output_ports):
+            try:
+                ok = port.send(message)
+            except Exception:
+                logger.exception("Error sending on MIDI port '%s'.", getattr(port, "name", "?"))
+                ok = False
+            if ok is False:
+                self._reopen_port(port)
+
+    def _reopen_port(self, port: Any) -> None:
+        """Reopens one winmm output after the device list changed."""
+        name = getattr(port, "name", None)
+        # Self-hosted virtual ports keep their own handles and must not be
+        # closed here; only winmm-backed outputs expose send_short.
+        if not name or not hasattr(port, "send_short"):
+            return
+        try:
+            port.close()
+        except Exception:
+            pass
+        try:
+            from core import winmidi
+            names = winmidi.get_output_names()
+        except Exception as error:
+            logger.warning("Could not re-enumerate MIDI outputs: %s", error)
+            return
+        match = next(
+            (candidate for candidate in names if candidate.strip().casefold() == name.strip().casefold()),
+            None,
+        )
+        if match is None:
+            logger.warning("MIDI output '%s' disappeared; dropping it", name)
+            self._output_ports = [item for item in self._output_ports if item is not port]
+            return
+        try:
+            replacement = winmidi.WinMmOutput(names.index(match), match)
+        except Exception as error:
+            logger.warning("Could not reopen MIDI output '%s': %s", name, error)
+            return
+        self._output_ports = [
+            replacement if item is port else item for item in self._output_ports
+        ]
+        logger.info("Reopened MIDI output '%s' after a device-list change", match)
 
     def send_control_change(self, control: int, value: int, channel: int = 0) -> None:
         """
@@ -232,6 +306,14 @@ class MidiInterface:
             value (int): Data value (0-127).
             channel (int): MIDI channel (0-15).
         """
+        # File transport first. DAWs without a loopback MIDI port (FL Studio,
+        # REAPER, Bitwig, ...) receive fader moves this way, so it must still
+        # run when no MIDI output could be opened.
+        try:
+            commandfile.push_control_change(channel, control, value)
+        except Exception as error:
+            logger.warning("Command file push failed: %s", error)
+
         if not self._output_ports:
             return
 
@@ -248,13 +330,6 @@ class MidiInterface:
             )
         except Exception as e:
             logger.exception("Error sending MIDI CC: %s", e)
-
-        # File fallback so fader moves still reach Live when the loopback
-        # MIDI port is not carrying data.
-        try:
-            commandfile.push_control_change(channel, control, value)
-        except Exception as error:
-            logger.warning("Command file push failed: %s", error)
 
     def send_pitch_bend(self, value: int, channel: int = 0) -> None:
         """Sends a pitch bend value expressed on the controller's 0-127 scale."""
@@ -340,17 +415,21 @@ class MidiInterface:
         except Exception as e:
             logger.exception("Error sending MIDI transport '%s': %s", kind, e)
 
-    def set_output(self, name: str) -> bool:
+    def set_output(self, name: str, allow_virtual_hosting: Optional[bool] = None) -> bool:
         """
         Switches the active MIDI output port.
 
         Args:
             name (str): Name of the workstation port to open.
+            allow_virtual_hosting (Optional[bool]): Overrides whether a missing
+                port may be created as a virtual port.
 
         Returns True when the new port was opened successfully.
         """
         self.close()
         self.port_name = (name or "").strip() or DEFAULT_PORT_NAME
+        if allow_virtual_hosting is not None:
+            self.allow_virtual_hosting = allow_virtual_hosting
         return self.open()
 
 if __name__ == "__main__":

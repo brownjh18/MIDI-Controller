@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ControlSurface>
+
+	<!-- 16 channel strips + transport. Wire format matches the
+	     iOS app / Ableton bridge: volume CC7, pan CC10, strip
+	     layout 0-7 -> ch 0-7, 8-14 -> ch 9-15, 15 (MASTER) -> ch 8. -->
+	<Controls>
+		<Control name="fader[0]" title="Fader 1" type="fader" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#07" channel="0"/> </Control>
+		<Control name="pan[0]" title="Pan 1" type="pot" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#0A" channel="0"/> </Control>
+		<Control name="fader[1]" title="Fader 2" type="fader" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#07" channel="1"/> </Control>
+		<Control name="pan[1]" title="Pan 2" type="pot" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#0A" channel="1"/> </Control>
+		<Control name="fader[2]" title="Fader 3" type="fader" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#07" channel="2"/> </Control>
+		<Control name="pan[2]" title="Pan 3" type="pot" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#0A" channel="2"/> </Control>
+		<Control name="fader[3]" title="Fader 4" type="fader" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#07" channel="3"/> </Control>
+		<Control name="pan[3]" title="Pan 4" type="pot" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#0A" channel="3"/> </Control>
+		<Control name="fader[4]" title="Fader 5" type="fader" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#07" channel="4"/> </Control>
+		<Control name="pan[4]" title="Pan 5" type="pot" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#0A" channel="4"/> </Control>
+		<Control name="fader[5]" title="Fader 6" type="fader" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#07" channel="5"/> </Control>
+		<Control name="pan[5]" title="Pan 6" type="pot" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#0A" channel="5"/> </Control>
+		<Control name="fader[6]" title="Fader 7" type="fader" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#07" channel="6"/> </Control>
+		<Control name="pan[6]" title="Pan 7" type="pot" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#0A" channel="6"/> </Control>
+		<Control name="fader[7]" title="Fader 8" type="fader" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#07" channel="7"/> </Control>
+		<Control name="pan[7]" title="Pan 8" type="pot" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#0A" channel="7"/> </Control>
+		<Control name="fader[8]" title="Fader 9" type="fader" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#07" channel="9"/> </Control>
+		<Control name="pan[8]" title="Pan 9" type="pot" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#0A" channel="9"/> </Control>
+		<Control name="fader[9]" title="Fader 10" type="fader" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#07" channel="10"/> </Control>
+		<Control name="pan[9]" title="Pan 10" type="pot" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#0A" channel="10"/> </Control>
+		<Control name="fader[10]" title="Fader 11" type="fader" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#07" channel="11"/> </Control>
+		<Control name="pan[10]" title="Pan 11" type="pot" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#0A" channel="11"/> </Control>
+		<Control name="fader[11]" title="Fader 12" type="fader" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#07" channel="12"/> </Control>
+		<Control name="pan[11]" title="Pan 12" type="pot" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#0A" channel="12"/> </Control>
+		<Control name="fader[12]" title="Fader 13" type="fader" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#07" channel="13"/> </Control>
+		<Control name="pan[12]" title="Pan 13" type="pot" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#0A" channel="13"/> </Control>
+		<Control name="fader[13]" title="Fader 14" type="fader" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#07" channel="14"/> </Control>
+		<Control name="pan[13]" title="Pan 14" type="pot" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#0A" channel="14"/> </Control>
+		<Control name="fader[14]" title="Fader 15" type="fader" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#07" channel="15"/> </Control>
+		<Control name="pan[14]" title="Pan 15" type="pot" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#0A" channel="15"/> </Control>
+		<Control name="fader[15]" title="Master" type="fader" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#07" channel="8"/> </Control>
+		<Control name="pan[15]" title="Pan M" type="pot" options="transmit receive public pageable"> <MidiMessage status="#B0" address="#0A" channel="8"/> </Control>
+		<Control name="recordButton[0]" title="R 1" type="trigger" options="receive public"> <MidiMessage status="#90" address="#20"/> </Control>
+		<Control name="recordButton[1]" title="R 2" type="trigger" options="receive public"> <MidiMessage status="#90" address="#21"/> </Control>
+		<Control name="recordButton[2]" title="R 3" type="trigger" options="receive public"> <MidiMessage status="#90" address="#22"/> </Control>
+		<Control name="recordButton[3]" title="R 4" type="trigger" options="receive public"> <MidiMessage status="#90" address="#23"/> </Control>
+		<Control name="recordButton[4]" title="R 5" type="trigger" options="receive public"> <MidiMessage status="#90" address="#24"/> </Control>
+		<Control name="recordButton[5]" title="R 6" type="trigger" options="receive public"> <MidiMessage status="#90" address="#25"/> </Control>
+		<Control name="recordButton[6]" title="R 7" type="trigger" options="receive public"> <MidiMessage status="#90" address="#26"/> </Control>
+		<Control name="recordButton[7]" title="R 8" type="trigger" options="receive public"> <MidiMessage status="#90" address="#27"/> </Control>
+		<Control name="recordButton[8]" title="R 9" type="trigger" options="receive public"> <MidiMessage status="#90" address="#28"/> </Control>
+		<Control name="recordButton[9]" title="R 10" type="trigger" options="receive public"> <MidiMessage status="#90" address="#29"/> </Control>
+		<Control name="recordButton[10]" title="R 11" type="trigger" options="receive public"> <MidiMessage status="#90" address="#2A"/> </Control>
+		<Control name="recordButton[11]" title="R 12" type="trigger" options="receive public"> <MidiMessage status="#90" address="#2B"/> </Control>
+		<Control name="recordButton[12]" title="R 13" type="trigger" options="receive public"> <MidiMessage status="#90" address="#2C"/> </Control>
+		<Control name="recordButton[13]" title="R 14" type="trigger" options="receive public"> <MidiMessage status="#90" address="#2D"/> </Control>
+		<Control name="recordButton[14]" title="R 15" type="trigger" options="receive public"> <MidiMessage status="#90" address="#2E"/> </Control>
+		<Control name="recordButton[15]" title="R 16" type="trigger" options="receive public"> <MidiMessage status="#90" address="#2F"/> </Control>
+		<Control name="recordLED[0]" type="button" options="transmit"> <MidiMessage status="#90" address="#20"/> </Control>
+		<Control name="recordLED[1]" type="button" options="transmit"> <MidiMessage status="#90" address="#21"/> </Control>
+		<Control name="recordLED[2]" type="button" options="transmit"> <MidiMessage status="#90" address="#22"/> </Control>
+		<Control name="recordLED[3]" type="button" options="transmit"> <MidiMessage status="#90" address="#23"/> </Control>
+		<Control name="recordLED[4]" type="button" options="transmit"> <MidiMessage status="#90" address="#24"/> </Control>
+		<Control name="recordLED[5]" type="button" options="transmit"> <MidiMessage status="#90" address="#25"/> </Control>
+		<Control name="recordLED[6]" type="button" options="transmit"> <MidiMessage status="#90" address="#26"/> </Control>
+		<Control name="recordLED[7]" type="button" options="transmit"> <MidiMessage status="#90" address="#27"/> </Control>
+		<Control name="recordLED[8]" type="button" options="transmit"> <MidiMessage status="#90" address="#28"/> </Control>
+		<Control name="recordLED[9]" type="button" options="transmit"> <MidiMessage status="#90" address="#29"/> </Control>
+		<Control name="recordLED[10]" type="button" options="transmit"> <MidiMessage status="#90" address="#2A"/> </Control>
+		<Control name="recordLED[11]" type="button" options="transmit"> <MidiMessage status="#90" address="#2B"/> </Control>
+		<Control name="recordLED[12]" type="button" options="transmit"> <MidiMessage status="#90" address="#2C"/> </Control>
+		<Control name="recordLED[13]" type="button" options="transmit"> <MidiMessage status="#90" address="#2D"/> </Control>
+		<Control name="recordLED[14]" type="button" options="transmit"> <MidiMessage status="#90" address="#2E"/> </Control>
+		<Control name="recordLED[15]" type="button" options="transmit"> <MidiMessage status="#90" address="#2F"/> </Control>
+		<Control name="armButton[0]" title="A 1" type="trigger" options="receive public"> <MidiMessage status="#90" address="#30"/> </Control>
+		<Control name="armButton[1]" title="A 2" type="trigger" options="receive public"> <MidiMessage status="#90" address="#31"/> </Control>
+		<Control name="armButton[2]" title="A 3" type="trigger" options="receive public"> <MidiMessage status="#90" address="#32"/> </Control>
+		<Control name="armButton[3]" title="A 4" type="trigger" options="receive public"> <MidiMessage status="#90" address="#33"/> </Control>
+		<Control name="armButton[4]" title="A 5" type="trigger" options="receive public"> <MidiMessage status="#90" address="#34"/> </Control>
+		<Control name="armButton[5]" title="A 6" type="trigger" options="receive public"> <MidiMessage status="#90" address="#35"/> </Control>
+		<Control name="armButton[6]" title="A 7" type="trigger" options="receive public"> <MidiMessage status="#90" address="#36"/> </Control>
+		<Control name="armButton[7]" title="A 8" type="trigger" options="receive public"> <MidiMessage status="#90" address="#37"/> </Control>
+		<Control name="armButton[8]" title="A 9" type="trigger" options="receive public"> <MidiMessage status="#90" address="#38"/> </Control>
+		<Control name="armButton[9]" title="A 10" type="trigger" options="receive public"> <MidiMessage status="#90" address="#39"/> </Control>
+		<Control name="armButton[10]" title="A 11" type="trigger" options="receive public"> <MidiMessage status="#90" address="#3A"/> </Control>
+		<Control name="armButton[11]" title="A 12" type="trigger" options="receive public"> <MidiMessage status="#90" address="#3B"/> </Control>
+		<Control name="armButton[12]" title="A 13" type="trigger" options="receive public"> <MidiMessage status="#90" address="#3C"/> </Control>
+		<Control name="armButton[13]" title="A 14" type="trigger" options="receive public"> <MidiMessage status="#90" address="#3D"/> </Control>
+		<Control name="armButton[14]" title="A 15" type="trigger" options="receive public"> <MidiMessage status="#90" address="#3E"/> </Control>
+		<Control name="armButton[15]" title="A 16" type="trigger" options="receive public"> <MidiMessage status="#90" address="#3F"/> </Control>
+		<Control name="armLED[0]" type="button" options="transmit"> <MidiMessage status="#90" address="#30"/> </Control>
+		<Control name="armLED[1]" type="button" options="transmit"> <MidiMessage status="#90" address="#31"/> </Control>
+		<Control name="armLED[2]" type="button" options="transmit"> <MidiMessage status="#90" address="#32"/> </Control>
+		<Control name="armLED[3]" type="button" options="transmit"> <MidiMessage status="#90" address="#33"/> </Control>
+		<Control name="armLED[4]" type="button" options="transmit"> <MidiMessage status="#90" address="#34"/> </Control>
+		<Control name="armLED[5]" type="button" options="transmit"> <MidiMessage status="#90" address="#35"/> </Control>
+		<Control name="armLED[6]" type="button" options="transmit"> <MidiMessage status="#90" address="#36"/> </Control>
+		<Control name="armLED[7]" type="button" options="transmit"> <MidiMessage status="#90" address="#37"/> </Control>
+		<Control name="armLED[8]" type="button" options="transmit"> <MidiMessage status="#90" address="#38"/> </Control>
+		<Control name="armLED[9]" type="button" options="transmit"> <MidiMessage status="#90" address="#39"/> </Control>
+		<Control name="armLED[10]" type="button" options="transmit"> <MidiMessage status="#90" address="#3A"/> </Control>
+		<Control name="armLED[11]" type="button" options="transmit"> <MidiMessage status="#90" address="#3B"/> </Control>
+		<Control name="armLED[12]" type="button" options="transmit"> <MidiMessage status="#90" address="#3C"/> </Control>
+		<Control name="armLED[13]" type="button" options="transmit"> <MidiMessage status="#90" address="#3D"/> </Control>
+		<Control name="armLED[14]" type="button" options="transmit"> <MidiMessage status="#90" address="#3E"/> </Control>
+		<Control name="armLED[15]" type="button" options="transmit"> <MidiMessage status="#90" address="#3F"/> </Control>
+		<Control name="muteButton[0]" title="M 1" type="trigger" options="receive public"> <MidiMessage status="#90" address="#40"/> </Control>
+		<Control name="muteButton[1]" title="M 2" type="trigger" options="receive public"> <MidiMessage status="#90" address="#41"/> </Control>
+		<Control name="muteButton[2]" title="M 3" type="trigger" options="receive public"> <MidiMessage status="#90" address="#42"/> </Control>
+		<Control name="muteButton[3]" title="M 4" type="trigger" options="receive public"> <MidiMessage status="#90" address="#43"/> </Control>
+		<Control name="muteButton[4]" title="M 5" type="trigger" options="receive public"> <MidiMessage status="#90" address="#44"/> </Control>
+		<Control name="muteButton[5]" title="M 6" type="trigger" options="receive public"> <MidiMessage status="#90" address="#45"/> </Control>
+		<Control name="muteButton[6]" title="M 7" type="trigger" options="receive public"> <MidiMessage status="#90" address="#46"/> </Control>
+		<Control name="muteButton[7]" title="M 8" type="trigger" options="receive public"> <MidiMessage status="#90" address="#47"/> </Control>
+		<Control name="muteButton[8]" title="M 9" type="trigger" options="receive public"> <MidiMessage status="#90" address="#48"/> </Control>
+		<Control name="muteButton[9]" title="M 10" type="trigger" options="receive public"> <MidiMessage status="#90" address="#49"/> </Control>
+		<Control name="muteButton[10]" title="M 11" type="trigger" options="receive public"> <MidiMessage status="#90" address="#4A"/> </Control>
+		<Control name="muteButton[11]" title="M 12" type="trigger" options="receive public"> <MidiMessage status="#90" address="#4B"/> </Control>
+		<Control name="muteButton[12]" title="M 13" type="trigger" options="receive public"> <MidiMessage status="#90" address="#4C"/> </Control>
+		<Control name="muteButton[13]" title="M 14" type="trigger" options="receive public"> <MidiMessage status="#90" address="#4D"/> </Control>
+		<Control name="muteButton[14]" title="M 15" type="trigger" options="receive public"> <MidiMessage status="#90" address="#4E"/> </Control>
+		<Control name="muteButton[15]" title="M 16" type="trigger" options="receive public"> <MidiMessage status="#90" address="#4F"/> </Control>
+		<Control name="muteLED[0]" type="button" options="transmit"> <MidiMessage status="#90" address="#40"/> </Control>
+		<Control name="muteLED[1]" type="button" options="transmit"> <MidiMessage status="#90" address="#41"/> </Control>
+		<Control name="muteLED[2]" type="button" options="transmit"> <MidiMessage status="#90" address="#42"/> </Control>
+		<Control name="muteLED[3]" type="button" options="transmit"> <MidiMessage status="#90" address="#43"/> </Control>
+		<Control name="muteLED[4]" type="button" options="transmit"> <MidiMessage status="#90" address="#44"/> </Control>
+		<Control name="muteLED[5]" type="button" options="transmit"> <MidiMessage status="#90" address="#45"/> </Control>
+		<Control name="muteLED[6]" type="button" options="transmit"> <MidiMessage status="#90" address="#46"/> </Control>
+		<Control name="muteLED[7]" type="button" options="transmit"> <MidiMessage status="#90" address="#47"/> </Control>
+		<Control name="muteLED[8]" type="button" options="transmit"> <MidiMessage status="#90" address="#48"/> </Control>
+		<Control name="muteLED[9]" type="button" options="transmit"> <MidiMessage status="#90" address="#49"/> </Control>
+		<Control name="muteLED[10]" type="button" options="transmit"> <MidiMessage status="#90" address="#4A"/> </Control>
+		<Control name="muteLED[11]" type="button" options="transmit"> <MidiMessage status="#90" address="#4B"/> </Control>
+		<Control name="muteLED[12]" type="button" options="transmit"> <MidiMessage status="#90" address="#4C"/> </Control>
+		<Control name="muteLED[13]" type="button" options="transmit"> <MidiMessage status="#90" address="#4D"/> </Control>
+		<Control name="muteLED[14]" type="button" options="transmit"> <MidiMessage status="#90" address="#4E"/> </Control>
+		<Control name="muteLED[15]" type="button" options="transmit"> <MidiMessage status="#90" address="#4F"/> </Control>
+		<Control name="soloButton[0]" title="S 1" type="trigger" options="receive public"> <MidiMessage status="#90" address="#50"/> </Control>
+		<Control name="soloButton[1]" title="S 2" type="trigger" options="receive public"> <MidiMessage status="#90" address="#51"/> </Control>
+		<Control name="soloButton[2]" title="S 3" type="trigger" options="receive public"> <MidiMessage status="#90" address="#52"/> </Control>
+		<Control name="soloButton[3]" title="S 4" type="trigger" options="receive public"> <MidiMessage status="#90" address="#53"/> </Control>
+		<Control name="soloButton[4]" title="S 5" type="trigger" options="receive public"> <MidiMessage status="#90" address="#54"/> </Control>
+		<Control name="soloButton[5]" title="S 6" type="trigger" options="receive public"> <MidiMessage status="#90" address="#55"/> </Control>
+		<Control name="soloButton[6]" title="S 7" type="trigger" options="receive public"> <MidiMessage status="#90" address="#56"/> </Control>
+		<Control name="soloButton[7]" title="S 8" type="trigger" options="receive public"> <MidiMessage status="#90" address="#57"/> </Control>
+		<Control name="soloButton[8]" title="S 9" type="trigger" options="receive public"> <MidiMessage status="#90" address="#58"/> </Control>
+		<Control name="soloButton[9]" title="S 10" type="trigger" options="receive public"> <MidiMessage status="#90" address="#59"/> </Control>
+		<Control name="soloButton[10]" title="S 11" type="trigger" options="receive public"> <MidiMessage status="#90" address="#5A"/> </Control>
+		<Control name="soloButton[11]" title="S 12" type="trigger" options="receive public"> <MidiMessage status="#90" address="#5B"/> </Control>
+		<Control name="soloButton[12]" title="S 13" type="trigger" options="receive public"> <MidiMessage status="#90" address="#5C"/> </Control>
+		<Control name="soloButton[13]" title="S 14" type="trigger" options="receive public"> <MidiMessage status="#90" address="#5D"/> </Control>
+		<Control name="soloButton[14]" title="S 15" type="trigger" options="receive public"> <MidiMessage status="#90" address="#5E"/> </Control>
+		<Control name="soloButton[15]" title="S 16" type="trigger" options="receive public"> <MidiMessage status="#90" address="#5F"/> </Control>
+		<Control name="soloLED[0]" type="button" options="transmit"> <MidiMessage status="#90" address="#50"/> </Control>
+		<Control name="soloLED[1]" type="button" options="transmit"> <MidiMessage status="#90" address="#51"/> </Control>
+		<Control name="soloLED[2]" type="button" options="transmit"> <MidiMessage status="#90" address="#52"/> </Control>
+		<Control name="soloLED[3]" type="button" options="transmit"> <MidiMessage status="#90" address="#53"/> </Control>
+		<Control name="soloLED[4]" type="button" options="transmit"> <MidiMessage status="#90" address="#54"/> </Control>
+		<Control name="soloLED[5]" type="button" options="transmit"> <MidiMessage status="#90" address="#55"/> </Control>
+		<Control name="soloLED[6]" type="button" options="transmit"> <MidiMessage status="#90" address="#56"/> </Control>
+		<Control name="soloLED[7]" type="button" options="transmit"> <MidiMessage status="#90" address="#57"/> </Control>
+		<Control name="soloLED[8]" type="button" options="transmit"> <MidiMessage status="#90" address="#58"/> </Control>
+		<Control name="soloLED[9]" type="button" options="transmit"> <MidiMessage status="#90" address="#59"/> </Control>
+		<Control name="soloLED[10]" type="button" options="transmit"> <MidiMessage status="#90" address="#5A"/> </Control>
+		<Control name="soloLED[11]" type="button" options="transmit"> <MidiMessage status="#90" address="#5B"/> </Control>
+		<Control name="soloLED[12]" type="button" options="transmit"> <MidiMessage status="#90" address="#5C"/> </Control>
+		<Control name="soloLED[13]" type="button" options="transmit"> <MidiMessage status="#90" address="#5D"/> </Control>
+		<Control name="soloLED[14]" type="button" options="transmit"> <MidiMessage status="#90" address="#5E"/> </Control>
+		<Control name="soloLED[15]" type="button" options="transmit"> <MidiMessage status="#90" address="#5F"/> </Control>
+		<Control name="playButton" title="Play" type="trigger" options="receive public"> <MidiMessage status="#90" address="#60"/> </Control>
+		<Control name="playLED"    type="button" options="transmit"> <MidiMessage status="#90" address="#60"/> </Control>
+		<Control name="stopButton" title="Stop" type="trigger" options="receive public"> <MidiMessage status="#90" address="#61"/> </Control>
+		<Control name="stopLED"    type="button" options="transmit"> <MidiMessage status="#90" address="#61"/> </Control>
+		<Control name="recordButton" title="Record" type="trigger" options="receive public"> <MidiMessage status="#90" address="#62"/> </Control>
+		<Control name="recordLED"    type="button" options="transmit"> <MidiMessage status="#90" address="#62"/> </Control>
+		<Control name="clickButton" title="Click" type="trigger" options="receive public"> <MidiMessage status="#90" address="#63"/> </Control>
+		<Control name="clickLED"    type="button" options="transmit"> <MidiMessage status="#90" address="#63"/> </Control>
+		<!-- Host -> bridge: track names. display$chLine0 rides in through
+		     a String mapping; the device registers one ChannelNameHandler per
+		     control (named channelName[i]) and streams the text out as CC 85/86/88
+		     on MIDI ch8. No MidiMessage here: handler-only, like the FaderPort
+		     textCell controls. -->
+		<Control name="channelName[0]" type="textdisplay" options="transmit"/>
+		<Control name="channelName[1]" type="textdisplay" options="transmit"/>
+		<Control name="channelName[2]" type="textdisplay" options="transmit"/>
+		<Control name="channelName[3]" type="textdisplay" options="transmit"/>
+		<Control name="channelName[4]" type="textdisplay" options="transmit"/>
+		<Control name="channelName[5]" type="textdisplay" options="transmit"/>
+		<Control name="channelName[6]" type="textdisplay" options="transmit"/>
+		<Control name="channelName[7]" type="textdisplay" options="transmit"/>
+		<Control name="channelName[8]" type="textdisplay" options="transmit"/>
+		<Control name="channelName[9]" type="textdisplay" options="transmit"/>
+		<Control name="channelName[10]" type="textdisplay" options="transmit"/>
+		<Control name="channelName[11]" type="textdisplay" options="transmit"/>
+		<Control name="channelName[12]" type="textdisplay" options="transmit"/>
+		<Control name="channelName[13]" type="textdisplay" options="transmit"/>
+		<Control name="channelName[14]" type="textdisplay" options="transmit"/>
+		<!-- Host -> bridge: selection feedback, CC 103+i (kept clear of the
+		     iOS FX/BUS synthetic slots CC 91/94 and the master CC 7/10).
+		     Value mapping of selectValue$ch emits data2 0/127; no JS needed. -->
+		<Control name="selectMirror[0]" type="button" options="transmit"> <MidiMessage status="#B0" address="#67" channel="8"/> </Control>
+		<Control name="selectMirror[1]" type="button" options="transmit"> <MidiMessage status="#B0" address="#68" channel="8"/> </Control>
+		<Control name="selectMirror[2]" type="button" options="transmit"> <MidiMessage status="#B0" address="#69" channel="8"/> </Control>
+		<Control name="selectMirror[3]" type="button" options="transmit"> <MidiMessage status="#B0" address="#6A" channel="8"/> </Control>
+		<Control name="selectMirror[4]" type="button" options="transmit"> <MidiMessage status="#B0" address="#6B" channel="8"/> </Control>
+		<Control name="selectMirror[5]" type="button" options="transmit"> <MidiMessage status="#B0" address="#6C" channel="8"/> </Control>
+		<Control name="selectMirror[6]" type="button" options="transmit"> <MidiMessage status="#B0" address="#6D" channel="8"/> </Control>
+		<Control name="selectMirror[7]" type="button" options="transmit"> <MidiMessage status="#B0" address="#6E" channel="8"/> </Control>
+		<Control name="selectMirror[8]" type="button" options="transmit"> <MidiMessage status="#B0" address="#6F" channel="8"/> </Control>
+		<Control name="selectMirror[9]" type="button" options="transmit"> <MidiMessage status="#B0" address="#70" channel="8"/> </Control>
+		<Control name="selectMirror[10]" type="button" options="transmit"> <MidiMessage status="#B0" address="#71" channel="8"/> </Control>
+		<Control name="selectMirror[11]" type="button" options="transmit"> <MidiMessage status="#B0" address="#72" channel="8"/> </Control>
+		<Control name="selectMirror[12]" type="button" options="transmit"> <MidiMessage status="#B0" address="#73" channel="8"/> </Control>
+		<Control name="selectMirror[13]" type="button" options="transmit"> <MidiMessage status="#B0" address="#74" channel="8"/> </Control>
+		<Control name="selectMirror[14]" type="button" options="transmit"> <MidiMessage status="#B0" address="#75" channel="8"/> </Control>
+		<!-- Bridge -> host: app-tapped selection. Toggle mapping of
+		     selectRequest[$ch] onto selectValue$ch (momentary); no JS needed. -->
+		<Control name="selectRequest[0]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#3C" channel="8"/> </Control>
+		<Control name="selectRequest[1]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#3D" channel="8"/> </Control>
+		<Control name="selectRequest[2]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#3E" channel="8"/> </Control>
+		<Control name="selectRequest[3]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#3F" channel="8"/> </Control>
+		<Control name="selectRequest[4]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#40" channel="8"/> </Control>
+		<Control name="selectRequest[5]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#41" channel="8"/> </Control>
+		<Control name="selectRequest[6]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#42" channel="8"/> </Control>
+		<Control name="selectRequest[7]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#43" channel="8"/> </Control>
+		<Control name="selectRequest[8]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#44" channel="8"/> </Control>
+		<Control name="selectRequest[9]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#45" channel="8"/> </Control>
+		<Control name="selectRequest[10]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#46" channel="8"/> </Control>
+		<Control name="selectRequest[11]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#47" channel="8"/> </Control>
+		<Control name="selectRequest[12]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#48" channel="8"/> </Control>
+		<Control name="selectRequest[13]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#49" channel="8"/> </Control>
+		<Control name="selectRequest[14]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#4A" channel="8"/> </Control>
+		<!-- Host -> bridge: focus-channel insert/send slot names. Same byte
+		     contract as the channel names but on dedicated CCs: inserts ride
+		     CC 75 (slot), CC 76 (len), CC 77 (byte); sends ride CC 78 (slot),
+		     CC 79 (len), CC 80 (byte). Handler-only controls. -->
+		<Control name="insertName[0]" type="textdisplay" options="transmit"/>
+		<Control name="insertName[1]" type="textdisplay" options="transmit"/>
+		<Control name="insertName[2]" type="textdisplay" options="transmit"/>
+		<Control name="insertName[3]" type="textdisplay" options="transmit"/>
+		<Control name="insertName[4]" type="textdisplay" options="transmit"/>
+		<Control name="insertName[5]" type="textdisplay" options="transmit"/>
+		<Control name="insertName[6]" type="textdisplay" options="transmit"/>
+		<Control name="insertName[7]" type="textdisplay" options="transmit"/>
+		<Control name="sendName[0]" type="textdisplay" options="transmit"/>
+		<Control name="sendName[1]" type="textdisplay" options="transmit"/>
+		<Control name="sendName[2]" type="textdisplay" options="transmit"/>
+		<Control name="sendName[3]" type="textdisplay" options="transmit"/>
+		<Control name="sendName[4]" type="textdisplay" options="transmit"/>
+		<Control name="sendName[5]" type="textdisplay" options="transmit"/>
+		<Control name="sendName[6]" type="textdisplay" options="transmit"/>
+		<Control name="sendName[7]" type="textdisplay" options="transmit"/>
+		<!-- Host -> bridge: focused-device parameter names/values. Titles ride
+		     CC 95 (index), CC 96 (len), CC 97 (byte); values ride CC 98/99/100.
+		     Handler-only controls, same byte contract as the slot names. -->
+		<Control name="paramTitle[0]" type="textdisplay" options="transmit"/>
+		<Control name="paramTitle[1]" type="textdisplay" options="transmit"/>
+		<Control name="paramTitle[2]" type="textdisplay" options="transmit"/>
+		<Control name="paramTitle[3]" type="textdisplay" options="transmit"/>
+		<Control name="paramTitle[4]" type="textdisplay" options="transmit"/>
+		<Control name="paramTitle[5]" type="textdisplay" options="transmit"/>
+		<Control name="paramTitle[6]" type="textdisplay" options="transmit"/>
+		<Control name="paramTitle[7]" type="textdisplay" options="transmit"/>
+		<Control name="paramTitle[8]" type="textdisplay" options="transmit"/>
+		<Control name="paramTitle[9]" type="textdisplay" options="transmit"/>
+		<Control name="paramTitle[10]" type="textdisplay" options="transmit"/>
+		<Control name="paramTitle[11]" type="textdisplay" options="transmit"/>
+		<Control name="paramTitle[12]" type="textdisplay" options="transmit"/>
+		<Control name="paramTitle[13]" type="textdisplay" options="transmit"/>
+		<Control name="paramTitle[14]" type="textdisplay" options="transmit"/>
+		<Control name="paramTitle[15]" type="textdisplay" options="transmit"/>
+		<Control name="paramValue[0]" type="textdisplay" options="transmit"/>
+		<Control name="paramValue[1]" type="textdisplay" options="transmit"/>
+		<Control name="paramValue[2]" type="textdisplay" options="transmit"/>
+		<Control name="paramValue[3]" type="textdisplay" options="transmit"/>
+		<Control name="paramValue[4]" type="textdisplay" options="transmit"/>
+		<Control name="paramValue[5]" type="textdisplay" options="transmit"/>
+		<Control name="paramValue[6]" type="textdisplay" options="transmit"/>
+		<Control name="paramValue[7]" type="textdisplay" options="transmit"/>
+		<Control name="paramValue[8]" type="textdisplay" options="transmit"/>
+		<Control name="paramValue[9]" type="textdisplay" options="transmit"/>
+		<Control name="paramValue[10]" type="textdisplay" options="transmit"/>
+		<Control name="paramValue[11]" type="textdisplay" options="transmit"/>
+		<Control name="paramValue[12]" type="textdisplay" options="transmit"/>
+		<Control name="paramValue[13]" type="textdisplay" options="transmit"/>
+		<Control name="paramValue[14]" type="textdisplay" options="transmit"/>
+		<Control name="paramValue[15]" type="textdisplay" options="transmit"/>
+		<!-- Bridge -> host: app-tapped insert/send. Momentary trigger; the
+		     component's notify() opens that device editor so Studio One
+		     publishes its parameters on the generic mapping. Inserts ride
+		     CC 20+i, sends CC 28+i. -->
+		<Control name="reqInsert[0]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#14" channel="8"/> </Control>
+		<Control name="reqInsert[1]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#15" channel="8"/> </Control>
+		<Control name="reqInsert[2]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#16" channel="8"/> </Control>
+		<Control name="reqInsert[3]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#17" channel="8"/> </Control>
+		<Control name="reqInsert[4]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#18" channel="8"/> </Control>
+		<Control name="reqInsert[5]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#19" channel="8"/> </Control>
+		<Control name="reqInsert[6]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#1A" channel="8"/> </Control>
+		<Control name="reqInsert[7]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#1B" channel="8"/> </Control>
+		<Control name="reqSend[0]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#1C" channel="8"/> </Control>
+		<Control name="reqSend[1]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#1D" channel="8"/> </Control>
+		<Control name="reqSend[2]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#1E" channel="8"/> </Control>
+		<Control name="reqSend[3]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#1F" channel="8"/> </Control>
+		<Control name="reqSend[4]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#20" channel="8"/> </Control>
+		<Control name="reqSend[5]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#21" channel="8"/> </Control>
+		<Control name="reqSend[6]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#22" channel="8"/> </Control>
+		<Control name="reqSend[7]" type="trigger" options="receive public pageable"> <MidiMessage status="#B0" address="#23" channel="8"/> </Control>
+	</Controls>
+
+</ControlSurface>

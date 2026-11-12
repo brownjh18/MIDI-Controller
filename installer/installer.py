@@ -1,9 +1,10 @@
-﻿"""One-click setup for the MIDI Bridge on Windows.
+"""One-click setup for the MIDI Bridge on Windows.
 
 Installs everything the phone controller needs on a laptop:
 
   * the bridge itself (a self-contained exe, no Python required),
   * the Ableton remote script, in Live's user library,
+  * the REAPER companion script, in REAPER's Scripts folder,
   * a firewall rule for the phone connection,
   * a Start Menu shortcut and an entry that starts the bridge with Windows,
   * a running bridge using the virtual MIDI port "AbletonBridge".
@@ -31,16 +32,41 @@ INSTALL_DIR = os.environ.get(
     os.path.join(os.environ.get("ProgramFiles", r"C:\Program Files"), "MidiBridge"),
 )
 BRIDGE_EXE = "MidiBridge.exe"
+LAUNCHER = "launch_midibridge.ps1"
+# Used when Program Files cannot be written (Windows sometimes keeps a handle
+# on an old exe, so replacing it fails even with administrator rights).
+FALLBACK_DIR = os.path.join(
+    os.environ.get(
+        "LOCALAPPDATA", os.path.join(os.path.expanduser("~"), "AppData", "Local")
+    ),
+    "MidiBridge",
+)
 PORT_NAME = "AbletonBridge"
 PORT = 8765
 FIREWALL_RULE = "MIDI Bridge (TCP 8765)"
 FIREWALL_PROGRAM_RULE = "MIDI Bridge (program)"
 SCRIPT_FOLDER = "AbletonBridgeMixer"
+REAPER_PAYLOAD = "ReaperScripts"
 LOOPMIDI_URL = "https://www.tobias-erichsen.de/wp-content/uploads/2020/01/loopMIDISetup_1_0_16_27.zip"
 LOOPMIDI_PAGE = "https://www.tobias-erichsen.de/software/loopmidi.html"
 DRIVER_DLL = os.path.join(
     os.environ.get("SystemRoot", r"C:\Windows"), "System32", "teVirtualMIDI64.dll"
 )
+# Studio One side: where the companion script and the Control Link surface data live.
+STUDIOONE_INSTALL_ROOT = os.path.join(
+    os.environ.get("ProgramFiles", r"C:\Program Files"),
+    "PreSonus",
+    "Studio One 6",
+)
+STUDIOONE_SCRIPTS_DIR = os.path.join(STUDIOONE_INSTALL_ROOT, "Scripts")
+STUDIOONE_SURFACE_DATA_DIR = os.path.join(
+    os.environ.get("APPDATA", os.path.join(os.path.expanduser("~"), "AppData", "Roaming")),
+    "PreSonus",
+    "Studio One 6",
+    "Surface Data[1]",
+)
+SURFACEDATA_NAME = "Jarvis Bridge.surfacedata"
+STUDIOONE_EXE = os.path.join(STUDIOONE_INSTALL_ROOT, "Studio One.exe")
 
 
 # ----------------------------------------------------------------------
@@ -85,6 +111,30 @@ def payload(*parts):
     return os.path.join(base, *parts)
 
 
+def live_install_roots():
+    """Every Ableton Live install folder Windows knows about."""
+    roots = [
+        os.path.join(os.environ.get("ProgramData", r"C:\ProgramData"), "Ableton"),
+        os.path.join(os.environ.get("ProgramFiles", r"C:\Program Files"), "Ableton"),
+        os.path.join(
+            os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)"), "Ableton"
+        ),
+    ]
+    found = []
+    for root in roots:
+        if not os.path.isdir(root):
+            continue
+        try:
+            found.extend(
+                os.path.join(root, name)
+                for name in os.listdir(root)
+                if name.lower().startswith("live")
+            )
+        except OSError:
+            pass
+    return found
+
+
 def is_admin():
     try:
         return bool(ctypes.windll.shell32.IsUserAnAdmin())
@@ -96,6 +146,22 @@ def port_open(port=PORT):
     with socket.socket() as probe:
         probe.settimeout(0.4)
         return probe.connect_ex(("127.0.0.1", port)) == 0
+
+
+def studioone_running():
+    """True when Studio One is currently running."""
+    try:
+        import subprocess as _sp
+
+        done = _sp.run(
+            ["tasklist", "/FI", "IMAGENAME eq Studio One.exe", "/NH", "/FO", "CSV"],
+            capture_output=True,
+            text=True,
+            creationflags=getattr(_sp, "CREATE_NO_WINDOW", 0),
+        )
+    except Exception:
+        return False
+    return "Studio One.exe" in (done.stdout or "")
 
 
 def run(command):
@@ -112,15 +178,16 @@ def run(command):
     return done.returncode == 0, (done.stdout or "") + (done.stderr or "")
 
 
-def make_shortcut(path, target, working_dir, minimized=True):
+def make_shortcut(path, target, working_dir, minimized=True, arguments=""):
     window_style = 7 if minimized else 1
     script = (
         "$s = (New-Object -ComObject WScript.Shell).CreateShortcut('%s');"
         "$s.TargetPath = '%s';"
+        "$s.Arguments = '%s';"
         "$s.WorkingDirectory = '%s';"
         "$s.WindowStyle = %d;"
         "$s.Description = 'MIDI Bridge';"
-        "$s.Save()" % (path, target, working_dir, window_style)
+        "$s.Save()" % (path, target, arguments, working_dir, window_style)
     )
     ok, _ = run(["powershell", "-NoProfile", "-NonInteractive", "-Command", script])
     return ok and os.path.isfile(path)
@@ -146,28 +213,268 @@ def shorten(text, limit=64):
 # ----------------------------------------------------------------------
 # Install steps
 # ----------------------------------------------------------------------
+def _copy_with_retry(source, target, attempts=3):
+    """Copies a file, retrying around Windows file locks."""
+    last_error = None
+    for _ in range(attempts):
+        try:
+            shutil.copy2(source, target)
+            return True, None
+        except OSError as error:
+            last_error = error
+            # A stale copy may be what is holding the lock; clear it if we can.
+            try:
+                os.remove(target)
+            except OSError:
+                pass
+            time.sleep(1.0)
+    return False, last_error
+
+
+def step_copy_launcher(directory, log):
+    """Drops the newest-build launcher next to the installed bridge."""
+    source = payload(LAUNCHER)
+    if not os.path.isfile(source):
+        # Older payloads shipped the file under its source name.
+        source = payload("launcher.ps1")
+    if not os.path.isfile(source):
+        log("Launcher was not bundled - skipped.")
+        return
+    try:
+        shutil.copy2(source, os.path.join(directory, LAUNCHER))
+        log("Launcher installed next to the bridge.")
+    except OSError as error:
+        log("Launcher skipped (%s)" % error)
+
+
 def step_copy_bridge(log):
-    os.makedirs(INSTALL_DIR, exist_ok=True)
-    target = os.path.join(INSTALL_DIR, BRIDGE_EXE)
-    shutil.copy2(payload(BRIDGE_EXE), target)
-    log("Bridge installed to %s" % target)
-    return target
+    """Installs the bridge exe, falling back to a user-writable folder.
+
+    Program Files is sometimes protected: Windows keeps a handle on an old exe
+    even after its process exits, so replacing it fails with Access denied.
+    In that case the bridge goes to %LOCALAPPDATA%\\MidiBridge instead, and the
+    shortcuts and the running process use that copy.
+    """
+    source = payload(BRIDGE_EXE)
+    for directory in (INSTALL_DIR, FALLBACK_DIR):
+        target = os.path.join(directory, BRIDGE_EXE)
+        try:
+            os.makedirs(directory, exist_ok=True)
+        except OSError as error:
+            log("Cannot create %s (%s)" % (shorten(directory), error))
+            continue
+        ok, error = _copy_with_retry(source, target)
+        if not ok:
+            log("Could not write %s (%s)" % (shorten(target), error))
+            continue
+        if directory == FALLBACK_DIR:
+            log("Program Files is locked - installed to %s" % target)
+        else:
+            log("Bridge installed to %s" % target)
+        step_copy_launcher(directory, log)
+        return target
+    raise RuntimeError("the bridge could not be copied to any writable folder")
 
 
 def step_copy_script(log):
-    scripts = os.path.join(documents_dir(), "Ableton", "User Library", "MIDI Remote Scripts")
-    target = os.path.join(scripts, SCRIPT_FOLDER)
-    os.makedirs(target, exist_ok=True)
+    """Drops the remote script where every Live version looks for it.
+
+    Two places get the script:
+
+    * Documents\\Ableton\\User Library\\MIDI Remote Scripts - the standard
+      location, and the one that survives Live reinstalls;
+    * every installed Live version's own Resources\\MIDI Remote Scripts
+      folder, so even versions with User-Library scanning disabled, or
+      oddities with OneDrive-redirected documents, still pick it up the
+      moment Live restarts.
+    """
     source = payload(SCRIPT_FOLDER)
-    shutil.copy2(os.path.join(source, "__init__.py"), os.path.join(target, "__init__.py"))
+
+    library = os.path.join(
+        documents_dir(), "Ableton", "User Library", "MIDI Remote Scripts"
+    )
+    target = os.path.join(library, SCRIPT_FOLDER)
+    os.makedirs(target, exist_ok=True)
+    shutil.copy2(
+        os.path.join(source, "__init__.py"), os.path.join(target, "__init__.py")
+    )
+    # A stale cache stops Live from noticing a replaced script.
+    shutil.rmtree(os.path.join(target, "__pycache__"), ignore_errors=True)
     log("Ableton script installed to %s" % target)
+
+    installed_into = []
+    for live in live_install_roots():
+        for scripts in (
+            os.path.join(live, "Program", "Resources", "MIDI Remote Scripts"),
+            os.path.join(live, "Resources", "MIDI Remote Scripts"),
+        ):
+            if not os.path.isdir(scripts):
+                continue
+            destination = os.path.join(scripts, SCRIPT_FOLDER)
+            try:
+                os.makedirs(destination, exist_ok=True)
+                shutil.copy2(
+                    os.path.join(source, "__init__.py"),
+                    os.path.join(destination, "__init__.py"),
+                )
+                shutil.rmtree(
+                    os.path.join(destination, "__pycache__"), ignore_errors=True
+                )
+                installed_into.append(destination)
+            except OSError as error:
+                log("Could not write to %s (%s)" % (shorten(destination), error))
+    if installed_into:
+        log(
+            "Copied into %d Live installation(s): %s"
+            % (len(installed_into), "; ".join(shorten(p, 40) for p in installed_into))
+        )
+    else:
+        log("No extra Live install folders found (User Library copy is enough).")
     return target
+
+
+def step_copy_reaper_script(log):
+    """Installs the REAPER companion script and its startup loader."""
+    source = payload(REAPER_PAYLOAD)
+    if not os.path.isdir(source):
+        log("REAPER script was not bundled - skipped.")
+        return None
+    scripts = os.path.join(os.environ.get("APPDATA", ""), "REAPER", "Scripts")
+    target = os.path.join(scripts, "JarvisBridge")
+    os.makedirs(target, exist_ok=True)
+    shutil.copy2(
+        os.path.join(source, "JarvisBridge.lua"),
+        os.path.join(target, "JarvisBridge.lua"),
+    )
+
+    loader = (
+        "-- Loads the MIDI Controller companion script when REAPER starts.\n"
+        "local separator = package.config:sub(1, 1)\n"
+        "local script_path = reaper.GetResourcePath() .. separator .. \"Scripts\""
+        " .. separator .. \"JarvisBridge\" .. separator .. \"JarvisBridge.lua\"\n"
+        "local handle = io.open(script_path, \"rb\")\n"
+        "if handle then\n"
+        "  handle:close()\n"
+        "  dofile(script_path)\n"
+        "end\n"
+    )
+    startup = os.path.join(scripts, "__startup.lua")
+    try:
+        existing = ""
+        if os.path.isfile(startup):
+            with open(startup, "r", encoding="utf-8", errors="replace") as handle:
+                existing = handle.read()
+        if "JarvisBridge" not in existing:
+            with open(startup, "a", encoding="utf-8") as handle:
+                if existing and not existing.endswith("\n"):
+                    handle.write("\n")
+                handle.write("\n" + loader)
+            log("REAPER startup loader added.")
+    except OSError as error:
+        log("REAPER startup loader skipped (%s)" % error)
+
+    log("REAPER script installed to %s" % target)
+    return target
+
+
+def step_copy_studioone_script(log):
+    """Installs the Studio One companion script and its startup loader.
+
+    It uses the FrameworkService category, which is auto-started when Studio
+    One starts. The service reads commands.json and writes state.json, then
+    exposes itself via Host.Objects.registerObject so other scripts can query
+    the current DAW state.
+    """
+    source = payload("StudioOne")
+    if not os.path.isdir(source):
+        log("Studio One script was not bundled - skipped.")
+        return None
+    scripts = os.path.join(
+        os.environ.get("ProgramFiles", r"C:\Program Files"),
+        "PreSonus",
+        "Studio One 6",
+        "Scripts",
+    )
+    target = os.path.join(scripts, "JarvisBridge")
+    os.makedirs(target, exist_ok=True)
+    for file in (
+        "metainfo.xml",
+        "classfactory.xml",
+        "jarvisbridge.device",
+        "jarvisbridge.js",
+        "jarvisbridge.surface.xml",
+        "JarvisBridgeDevice.js",
+        "JarvisBridgeComponent.js",
+        "JarvisBridge.txt",
+        "skin/skin.xml",
+    ):
+        src_path = os.path.join(source, file)
+        dst_path = os.path.join(target, file)
+        if os.path.isfile(src_path):
+            shutil.copy2(src_path, dst_path)
+    log("Studio One script installed to %s" % target)
+    return target
+
+
+def step_install_studioone_surfacdata(log):
+    """Installs the Studio One Control Link surface data for the bridge.
+
+    The surfacedata file carries the Mackie-Control surface associations that
+    Studio One uses to fill the generic parameter strips (titles + values) of
+    the focused plugin. Without a valid surfacedata the Control Link fill stays
+    empty and the phone controller has no device parameters to show.
+    """
+    source = payload("StudioOne", SURFACEDATA_NAME)
+    fallback = os.path.join(SURFACE_DATA_DIR, SURFACEDATA_NAME)
+    if not os.path.isfile(source):
+        source = fallback
+    if not os.path.isfile(source):
+        log("Studio One surface data was not bundled - skipped.")
+        return False
+    try:
+        os.makedirs(SURFACE_DATA_DIR, exist_ok=True)
+        shutil.copy2(source, os.path.join(SURFACE_DATA_DIR, SURFACEDATA_NAME))
+        log(
+            "Studio One Control Link surface data installed to %s"
+            % SURFACE_DATA_DIR
+        )
+        return True
+    except OSError as error:
+        log("Studio One surface data install skipped (%s)" % error)
+        return False
+
+
+def step_restart_studioone(log):
+    """Fully restarts Studio One so it reloads the bridge component and the
+    freshly installed Control Link surface data."""
+    if not os.path.isfile(STUDIOONE_EXE):
+        log("Studio One exe not found - restart skipped.")
+        return False
+    log("Restarting Studio One...")
+    run(["taskkill", "/IM", "Studio One.exe", "/F"])
+    for _ in range(30):
+        if not studioone_running():
+            break
+        time.sleep(1.0)
+    os.startfile(STUDIOONE_EXE)
+    for _ in range(30):
+        if studioone_running():
+            break
+        time.sleep(1.0)
+    if studioone_running():
+        log("Studio One restarted.")
+        return True
+    log("Studio One did not come back up - restart may need a manual launch.")
+    return False
 
 
 def step_firewall(log, exe=None):
     if not is_admin():
         log("Skipped the firewall rule (needs administrator).")
         return False
+    # Allow every Windows network profile. A USB-tethered iPhone often shows
+    # up as an unidentified/Public network, and a Private-only rule silently
+    # blocks the app even though the bridge is listening on 0.0.0.0.
     run(["netsh", "advfirewall", "firewall", "delete", "rule", "name=" + FIREWALL_RULE])
     ok, output = run(
         [
@@ -181,7 +488,7 @@ def step_firewall(log, exe=None):
             "action=allow",
             "protocol=TCP",
             "localport=" + str(PORT),
-            "profile=private",
+            "profile=any",
         ]
     )
     if exe and os.path.isfile(exe):
@@ -207,17 +514,38 @@ def step_firewall(log, exe=None):
                 "dir=in",
                 "action=allow",
                 "program=" + exe,
-                "profile=private",
+                "profile=any",
             ]
         )
     if ok:
-        log("Firewall open for the phone on port %d (private networks)." % PORT)
+        log("Firewall open for the phone on port %d (all network profiles)." % PORT)
     else:
         log("Firewall rule failed: %s" % output.strip()[:200])
     return ok
 
 
+def _launch_target(exe):
+    """Shortcut target: the launcher when present, else the bridge itself."""
+    launcher = os.path.join(os.path.dirname(exe), LAUNCHER)
+    if os.path.isfile(launcher):
+        powershell = os.path.join(
+            os.environ.get("SystemRoot", r"C:\Windows"),
+            "System32",
+            "WindowsPowerShell",
+            "v1.0",
+            "powershell.exe",
+        )
+        arguments = (
+            '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "%s"'
+            % launcher
+        )
+        return powershell, arguments
+    return exe, ""
+
+
 def step_shortcuts(exe, log):
+    target, arguments = _launch_target(exe)
+    working_dir = os.path.dirname(exe)
     start_menu = os.path.join(
         os.environ.get("ProgramData", r"C:\ProgramData"),
         "Microsoft",
@@ -226,7 +554,10 @@ def step_shortcuts(exe, log):
         "Programs",
     )
     menu_ok = make_shortcut(
-        os.path.join(start_menu, APP_NAME + ".lnk"), exe, INSTALL_DIR
+        os.path.join(start_menu, APP_NAME + ".lnk"),
+        target,
+        working_dir,
+        arguments=arguments,
     )
     if menu_ok:
         log("Start Menu shortcut created.")
@@ -244,7 +575,10 @@ def step_shortcuts(exe, log):
     )
     if os.path.isdir(startup):
         startup_ok = make_shortcut(
-            os.path.join(startup, APP_NAME + ".lnk"), exe, INSTALL_DIR
+            os.path.join(startup, APP_NAME + ".lnk"),
+            target,
+            working_dir,
+            arguments=arguments,
         )
         if startup_ok:
             log("Bridge will start with Windows.")
@@ -264,11 +598,11 @@ def stop_old_bridge(log):
     return False
 
 
-def step_start(log):
+def step_start(exe, log):
     if not stop_old_bridge(log):
         log("Port %d is still held by another program - left it alone." % PORT)
         return True
-    start_bridge(os.path.join(INSTALL_DIR, BRIDGE_EXE))
+    start_bridge(exe)
     for _ in range(40):
         time.sleep(0.5)
         if port_open():
@@ -548,11 +882,41 @@ class Setup(tk.Tk):
                 )
             )
 
+            # Stop the old bridge first: a running exe keeps a lock that makes
+            # replacing it fail on Windows.
+            stop_old_bridge(self.log)
+
             exe = step_copy_bridge(self.log)
             results.append(("Bridge program", shorten(exe), True))
 
             script = step_copy_script(self.log)
             results.append(("Ableton remote script", shorten(script), True))
+
+            reaper_script = step_copy_reaper_script(self.log)
+            if reaper_script:
+                results.append(("REAPER script", shorten(reaper_script), True))
+
+            studioone_script = step_copy_studioone_script(self.log)
+            if studioone_script:
+                results.append(("Studio One script", shorten(studioone_script), True))
+
+            surfacedata_ok = step_install_studioone_surfacdata(self.log)
+            results.append(
+                (
+                    "Studio One Control Link data",
+                    "installed" if surfacedata_ok else "skipped",
+                    surfacedata_ok,
+                )
+            )
+
+            restart_ok = step_restart_studioone(self.log)
+            results.append(
+                (
+                    "Studio One restart",
+                    "done" if restart_ok else "skipped",
+                    restart_ok,
+                )
+            )
 
             firewall_ok = step_firewall(self.log, exe)
             results.append(
@@ -569,7 +933,7 @@ class Setup(tk.Tk):
             results.append(("Start Menu shortcut", APP_NAME, menu_ok))
             results.append(("Starts with Windows", "runs at sign-in", startup_ok))
 
-            running_ok = step_start(self.log)
+            running_ok = step_start(exe, self.log)
             results.append(
                 (
                     "Bridge running",
@@ -675,9 +1039,12 @@ class Setup(tk.Tk):
             anchor="w",
         ).pack(fill="x", padx=8, pady=(8, 2))
         for line in (
+            "Exit Ableton Live completely (if it is open), then reopen it:",
+            "the control surface list is only scanned at startup.",
             "Preferences > Link, Tempo & MIDI",
             "Control Surface:  AbletonBridgeMixer",
-            "Input / Output:   %s" % PORT_NAME,
+            "(spelled like that - it sits under the A's, above Push)",
+            "Input / Output:   AbletonBridge",
         ):
             tk.Label(
                 turn,

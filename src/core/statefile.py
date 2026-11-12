@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 STATE_DIR = os.path.join(tempfile.gettempdir(), "AbletonBridgeMixer")
 STATE_FILE = os.path.join(STATE_DIR, "state.json")
-POLL_SECONDS = 0.5
+POLL_SECONDS = 0.15
 # Snapshots are re-sent even when nothing changed. The app ignores Live for a
 # moment after the performer moves a control (so a stale echo cannot fight the
 # drag); without a repeat, that one discarded frame would leave the fader a

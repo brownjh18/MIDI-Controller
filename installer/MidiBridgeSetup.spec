@@ -5,7 +5,7 @@ a = Analysis(
     ['installer.py'],
     pathex=[],
     binaries=[],
-    datas=[('C:/Users/brown/Desktop/JarvisProjects/midi_bridge/installer/payload/MidiBridge.exe', '.'), ('C:/Users/brown/Desktop/JarvisProjects/midi_bridge/installer/payload/AbletonBridgeMixer', 'AbletonBridgeMixer'), ('C:/Users/brown/Desktop/JarvisProjects/midi_bridge/installer/payload/loopMIDISetup.zip', '.')],
+    datas=[('C:/Users/brown/Desktop/midi_bridge/installer/payload/MidiBridge.exe', '.'), ('C:/Users/brown/Desktop/midi_bridge/installer/payload/launch_midibridge.ps1', '.'), ('C:/Users/brown/Desktop/midi_bridge/installer/payload/ReaperScripts', 'ReaperScripts'), ('C:/Users/brown/Desktop/midi_bridge/installer/payload/StudioOne', 'StudioOne'), ('C:/Users/brown/Desktop/midi_bridge/installer/payload/AbletonBridgeMixer', 'AbletonBridgeMixer'), ('C:/Users/brown/Desktop/midi_bridge/installer/payload/loopMIDISetup.zip', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -35,4 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    uac_admin=True,
 )

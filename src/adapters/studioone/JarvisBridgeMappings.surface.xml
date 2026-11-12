@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ControlSurface>
+
+	<Mappings>
+
+		<!-- Mixer: the remote-ALL channel page (all remote-capable channels in
+		     mixer order, pagesize 16) feeding our 15 strips, exactly like the
+		     FaderPort 8+16. A plain RemoteBank target is the user-assigned
+		     remote page and stays empty until channels are assigned in the
+		     External Devices dialog, which left our display lines/select
+		     mirror inert. The app caps display at 15 because the master is
+		     placed in MasterBank below. -->
+		<DeviceMapping device="MixerConsole" name="MixerMapping">
+			<PlacementBank target="RemoteAllBank" pagesize="16" name="ChannelBankElement">
+				<foreach variable="$ch" count="15">
+					<Strip onConnect="onConnectChannel($ch)">
+						<Value control="fader[$ch]"        param="volume"/>
+						<Value control="pan[$ch]"          param="pan"/>
+						<Toggle control="recordButton[$ch]" param="recordArmed" options="momentary"/>
+						<Value  control="recordLED[$ch]"     param="recordArmed"/>
+						<Toggle control="armButton[$ch]"     param="recordArmed" options="momentary"/>
+						<Value  control="armLED[$ch]"         param="recordArmed"/>
+						<Toggle control="muteButton[$ch]"    param="mute"       options="momentary"/>
+						<Value  control="muteLED[$ch]"       param="mute"/>
+						<Toggle control="soloButton[$ch]"    param="solo"      options="momentary"/>
+						<Value  control="soloLED[$ch]"       param="solo"/>
+					</Strip>
+				</foreach>
+			</PlacementBank>
+
+			<!-- MASTER strip — lives in its own bank so it isn't remixed into
+			     the track channels above. Ch8 matches iOS' mainFXChannel and
+			     the app's lower-fader encoding for the MAIN section. -->
+			<Bank target="MasterBank">
+				<Strip name="masterStrip">
+					<Value control="fader[15]"  param="volume"/>
+					<Value control="pan[15]"     param="pan"/>
+					<Toggle control="muteButton[15]" param="mute" options="momentary"/>
+					<Value  control="muteLED[15]"   param="mute"/>
+					<Toggle control="soloButton[15]" param="solo" options="momentary"/>
+					<Value  control="soloLED[15]"   param="solo"/>
+					<Toggle control="recordButton[15]" param="recordArmed" options="momentary"/>
+					<Value  control="recordLED[15]"   param="recordArmed"/>
+				</Strip>
+			</Bank>
+
+			<!-- Selected channel (follows the selection in the host). The app's
+			     popover shows inserts/sends of the selected channel; the component
+			     binds the focus channel's slot names via aliases (see
+			     JarvisBridgeComponent.js). -->
+			<ScrollBank target="FollowBank" pagesize="1" name="FocusBankElement">
+				<Strip onConnect="onConnectFocusChannel">
+					<Bank target="Inserts" name="InsertsBankElement">
+						<foreach variable="$i" count="8">
+							<Strip onConnect="onConnectFocusChannelInsert($i)"/>
+						</foreach>
+					</Bank>
+					<Bank target="Sends" name="SendsBankElement">
+						<foreach variable="$i" count="8">
+							<Strip onConnect="onConnectFocusChannelSend($i)"/>
+						</foreach>
+					</Bank>
+				</Strip>
+			</ScrollBank>
+		</DeviceMapping>
+
+		<!-- Name/selection mirror stream to the bridge. These params are
+		     GLOBAL surface params (slot-indexed, 0-14) — the host feeds them
+		     from the active remote bank, exactly like the FaderPort text
+		     cells. Binding them inside a channel-context mapping leaves them
+		     inert at defaults. See JarvisBridgeDevice.js. -->
+		<Global>
+			<foreach variable="$ch" count="15">
+				<String control="channelName[$ch]"   param="display$chLine0"/>
+				<Value  control="selectMirror[$ch]"  param="selectValue$ch"/>
+				<Toggle control="selectRequest[$ch]" param="selectValue$ch"/>
+			</foreach>
+			<!-- Focus channel insert/send slot names (see JarvisBridgeComponent). -->
+			<foreach variable="$i" count="8">
+				<String control="insertName[$i]"     param="insertName$i"/>
+				<String control="sendName[$i]"       param="sendName$i"/>
+			</foreach>
+			<!-- Focused-device parameter names/values (generic mapping page 0).
+			     The component binds these aliases while a plugin is focused. -->
+			<foreach variable="$i" count="16">
+				<String control="paramTitle[$i]"     param="paramTitle$i"/>
+				<String control="paramValue[$i]"     param="paramValue$i"/>
+			</foreach>
+			<!-- App-tapped insert/send: Invoke calls the component directly on
+			     the button event (like the FaderPort's onFaderTouched /
+			     onEncoderPushed), which opens that device's editor so Studio One
+			     publishes its parameters on the generic mapping. -->
+			<foreach variable="$i" count="8">
+				<Invoke control="reqInsert[$i]" onReceive="onReqInsert($i)"/>
+				<Invoke control="reqSend[$i]"   onReceive="onReqSend($i)"/>
+			</foreach>
+		</Global>
+
+		<!-- Generic mapping page 0: Studio One fills these 16 fader slots with
+		     the focused plugin's parameters (title + value). The component
+		     binds paramTitle$i / paramValue$i to them while a device is
+		     focused, so the app can show the real control details. -->
+		<GenericMapping>
+			<Bank onConnect="onConnectPlugMapping">
+				<foreach variable="$i" count="16">
+					<Strip name="fader[$i]" onConnect="onConnectPlugControl($i)"/>
+				</foreach>
+			</Bank>
+		</GenericMapping>
+
+		<DeviceMapping device="TransportPanel" name="TransportMapping">
+			<Command control="playButton"  command.category="Transport" command.name="Toggle Start" command.args="Pause=1"/>
+			<Value   control="playLED"     param="start"/>
+			<Command control="stopButton"  command.category="Transport" command.name="Stop"/>
+			<Value   control="stopLED"     param="stop"/>
+			<Toggle  control="recordButton" param="record"/>
+			<Value   control="recordLED"   param="record"/>
+		</DeviceMapping>
+
+		<DeviceMapping device="Metronome" name="MetronomeMapping">
+			<Toggle control="clickButton" param="clickOn"/>
+			<Value  control="clickLED"   param="clickOn"/>
+		</DeviceMapping>
+
+	</Mappings>
+
+</ControlSurface>

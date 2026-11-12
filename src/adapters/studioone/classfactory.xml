@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClassFactory>
+  <ScriptClass
+    classID="{B7E2C4A1-9D3F-4B6E-8A2C-5F1D7E9B3A60}"
+    category="ControlSurfaceDevice"
+    subCategory="ControlSurfaceDevice"
+    name="JarvisBridgeDevice"
+    sourceFile="JarvisBridgeDevice.js"
+    functionName="createJarvisBridgeDeviceInstance">
+  </ScriptClass>
+</ClassFactory>
